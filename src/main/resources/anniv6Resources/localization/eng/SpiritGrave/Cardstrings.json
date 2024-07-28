@@ -1,0 +1,6 @@
+{
+  "${ModID}:SpiritArmor": {
+    "NAME": "Spirit Armor",
+    "DESCRIPTION": "When you would lose health, lose 1 less."
+  }
+}
