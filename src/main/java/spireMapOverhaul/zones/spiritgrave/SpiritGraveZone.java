@@ -13,11 +13,15 @@ import com.megacrit.cardcrawl.powers.VulnerablePower;
 import com.megacrit.cardcrawl.powers.WeakPower;
 import com.megacrit.cardcrawl.random.Random;
 import com.megacrit.cardcrawl.rooms.EventRoom;
+import com.megacrit.cardcrawl.ui.campfire.AbstractCampfireOption;
+import com.megacrit.cardcrawl.ui.campfire.RestOption;
 import spireMapOverhaul.abstracts.AbstractZone;
 import spireMapOverhaul.zoneInterfaces.*;
 import spireMapOverhaul.zones.gremlinTown.GremlinTown;
 import spireMapOverhaul.zones.gremlinTown.cards.*;
 import spireMapOverhaul.zones.gremlinTown.monsters.*;
+import spireMapOverhaul.zones.gremlincamp.ScavengeOption;
+import spireMapOverhaul.zones.spiritgrave.cards.SpiritArmor;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -26,13 +30,14 @@ import java.util.List;
 import static spireMapOverhaul.util.Wiz.atb;
 import static spireMapOverhaul.util.Wiz.forAllMonstersLiving;
 
-//REFS: GremlinTown, TheFogZone
+//REFS: GremlinTown, GremlinCamp, TheFogZone
 public class SpiritGraveZone extends AbstractZone
-        implements EncounterModifyingZone,
-        RewardModifyingZone,
-        ShopModifyingZone,
+        implements  CampfireModifyingZone,
         CombatModifyingZone,
-        ModifiedEventRateZone {
+        EncounterModifyingZone,
+        ModifiedEventRateZone,
+        RewardModifyingZone,
+        ShopModifyingZone {
     public static final String ID = "SpiritGrave";
     private static ArrayList<AbstractCard> spiritGraveCards;
     private static ArrayList<AbstractCard> commonspiritGraveCards;
@@ -42,7 +47,7 @@ public class SpiritGraveZone extends AbstractZone
     private final Color zoneColor;
 
     public SpiritGraveZone() {
-        super(ID, Icons.MONSTER, Icons.EVENT, Icons.SHOP);
+        super(ID, Icons.MONSTER, Icons.MONSTER, Icons.REST, Icons.SHOP, Icons.EVENT);
         width = 1;
         maxWidth = 1;
         height = 5;
@@ -71,11 +76,11 @@ public class SpiritGraveZone extends AbstractZone
         if (AbstractDungeon.getCurrRoom().monsters == null) {
             return;
         }
-        forAllMonstersLiving(m -> {
+        /*forAllMonstersLiving(m -> {
             atb(new ApplyPowerAction(m, null, new WeakPower(m, 1, false)));
-            atb(new ApplyPowerAction(m, null, new VulnerablePower(m, 1, false)));
         });
         atb(new MakeTempCardInDrawPileAction(new Dazed(), 1 , true, true));
+        */
     }
 
     /*@Override
@@ -142,6 +147,25 @@ public class SpiritGraveZone extends AbstractZone
         );
     }
 
+    @Override
+    public void postAddButtons(ArrayList<AbstractCampfireOption> buttons) {
+        for (AbstractCampfireOption op : buttons) {
+            if (op instanceof RestOption && op.usable) {
+                op.usable = false;
+                ((RestOption) op).updateUsability(false);
+                break;
+            }
+        }
+        //To be moved to Elite fight rewards.
+        buttons.add(new RemovalOption());
+    }
+
+    //REF: PeacePipe.class
+    /*
+    public void addCampfireOption(ArrayList<AbstractCampfireOption> options) {
+        options.add(new TokeOption(!CardGroup.getGroupWithoutBottledCards(AbstractDungeon.player.masterDeck.getPurgeableCards()).isEmpty()));
+    }*/
+
     //REF: GremlinTown
     private static void initSpiritGraveCards() {
         commonspiritGraveCards = new ArrayList<>();
@@ -151,7 +175,7 @@ public class SpiritGraveZone extends AbstractZone
         uncommonspiritGraveCards.add(new Assassinate());
 
         rarespiritGraveCards = new ArrayList<>();
-        rarespiritGraveCards.add(new Flurry());
+        rarespiritGraveCards.add(new SpiritArmor());
 
         spiritGraveCards = new ArrayList<>();
         spiritGraveCards.addAll(commonspiritGraveCards);
