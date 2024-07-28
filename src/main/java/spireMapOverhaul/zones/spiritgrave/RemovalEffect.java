@@ -16,6 +16,11 @@ import com.megacrit.cardcrawl.rooms.RestRoom;
 import com.megacrit.cardcrawl.vfx.AbstractGameEffect;
 import com.megacrit.cardcrawl.vfx.cardManip.PurgeCardEffect;
 
+import java.util.ArrayList;
+import java.util.List;
+
+//TODO: fix "can cancel out of removal, which removes still, and doesn't end Campfire".
+
 //REF: CampfireTokeEffect (base game), TransformEffect (gravewoodGrove)
 public class RemovalEffect extends AbstractGameEffect {
     private static final float DURATION = 1.5F;
@@ -46,36 +51,26 @@ public class RemovalEffect extends AbstractGameEffect {
             AbstractDungeon.gridSelectScreen.selectedCards.clear();
         }
 
-        //REF TransformEffect
-        /*if (!AbstractDungeon.isScreenUp && !AbstractDungeon.gridSelectScreen.selectedCards.isEmpty()) {
-            AbstractCard c = AbstractDungeon.gridSelectScreen.selectedCards.get(0);
-            AbstractDungeon.player.masterDeck.removeCard(c);
-
-            AbstractDungeon.transformCard(c, false, AbstractDungeon.miscRng);
-            AbstractCard transCard = AbstractDungeon.getTransformedCard();
-            AbstractDungeon.effectsQueue.add(new ShowCardAndObtainEffect(transCard, Settings.WIDTH / 2.0F, Settings.HEIGHT / 2.0F));
-
-            AbstractDungeon.gridSelectScreen.selectedCards.clear();
-            ((RestRoom) AbstractDungeon.getCurrRoom()).fadeIn();
-        }
-
         if (this.duration < 1.0F && !this.openedScreen) {
             this.openedScreen = true;
-            AbstractDungeon.gridSelectScreen.open(
-                    CardGroup.getGroupWithoutBottledCards(AbstractDungeon.player.masterDeck
-                            .getPurgeableCards()), 2, RemovalOption.TEXT[2], false, false, true, true);
-        }*/
 
-        // Almost everything below here is boilerplate.
-        if (this.duration < 1.0F && !this.openedScreen) {
-            this.openedScreen = true;
-            AbstractDungeon.gridSelectScreen.open(
+            //CardGroup starters = new CardGroup(CardGroup.CardGroupType.CARD_POOL);
+            CardGroup.getGroupWithoutBottledCards(AbstractDungeon.player.masterDeck.getPurgeableCards());
+            //CardGroup starters = CardGroup.getGroupWithoutBottledCards(AbstractDungeon.player.masterDeck.getPurgeableCards());
+
+            /*AbstractDungeon.gridSelectScreen.open(
                     CardGroup.getGroupWithoutBottledCards(AbstractDungeon.player.masterDeck.getPurgeableCards()),
+                    2, RemovalOption.TEXT[2],
+                    false, false, true, true
+            );*/
+            AbstractDungeon.gridSelectScreen.open(
+                    shammyMethod(),
                     2, RemovalOption.TEXT[2],
                     false, false, true, true
             );
         }
 
+        // Boilerplate.
         if (this.duration < 0.0F) {
             this.isDone = true;
             if (CampfireUI.hidden) {
@@ -85,6 +80,72 @@ public class RemovalEffect extends AbstractGameEffect {
             }
         }
     }
+
+    /*public CardGroup getStarterCards {
+        CardGroup filteredCards = new CardGroup(CardGroup.CardGroupType.UNSPECIFIED);
+        AbstractDungeon.player.masterDeck.group.stream()
+                .filter(card -> card.rarity == AbstractCard.CardRarity.BASIC)
+                .forEach(filteredCards::addToTop);
+        return filteredCards;
+    }*/
+
+    //REF: Alchyr https://discord.com/channels/309399445785673728/398373038732738570/1193105351919288330
+    /*
+    public CardGroup getEnchantableCards {
+        CardGroup filteredCards = new CardGroup(CardGroup.CardGroupType.UNSPECIFIED);
+        AbstractDungeon.player.masterDeck.group.stream()
+                .filter(card -> !ManaSurgeZone.hasManaSurgeModifier(card) &&
+                        card.cost != -2 &&
+                        card.type != AbstractCard.CardType.CURSE &&
+                        card.type != AbstractCard.CardType.STATUS)
+                .forEach(filteredCards::addToTop);
+        return filteredCards;
+    }
+
+    .addOption(new TextPhase.OptionInfo(OPTIONS[0])
+                        .cardSelectOption("Reached Inside",
+                                CoolExampleEvent::getEnchantableCards,
+                                "Select a card to enchant.",
+                                1, false, false, true, false,
+                                (cards)->{
+                                    for (AbstractCard c : cards) {
+                                        ManaSurgeZone.applyPermanentPositiveModifier(c);
+                                        AbstractDungeon.effectList.add(new ShowCardBrieflyEffect(c.makeStatEquivalentCopy()));
+                                    }
+
+                                    CardGroup filteredCards = CoolExampleEvent.getEnchantableCards();
+
+                                    AbstractCard randomCard = filteredCards.getRandomCard(true);
+                                    if (randomCard != null) {
+                                        ManaSurgeZone.applyPermanentNegativeModifier(randomCard);
+                                        AbstractDungeon.effectList.add(new ShowCardBrieflyEffect(randomCard.makeStatEquivalentCopy()));
+                                        filteredCards.group.remove(randomCard);
+                                    }
+                                }
+                        )
+                )
+    */
+
+    //REF: Shammy https://discord.com/channels/309399445785673728/398373038732738570/1266962865257189386
+    /*
+    List<AbstractCard> targets = new ArrayList<>(AbstractDungeon.player.masterDeck.group);
+    CardGroup group = new CardGroup(CardGroup.CardGroupType.UNSPECIFIED);
+    targets.removeIf(x -> x.type == AbstractCard.CardType.CURSE);
+    targets.forEach(group::addToBottom);
+    return (i) -> AbstractDungeon.gridSelectScreen.open(group, 1, getDivinityStrings().getMiscText().get(SELECT_TEXT), false);
+    */
+
+    private CardGroup shammyMethod () {
+        List<AbstractCard> targets = new ArrayList<>(AbstractDungeon.player.masterDeck.group);
+        CardGroup group = new CardGroup(CardGroup.CardGroupType.UNSPECIFIED);
+        targets.removeIf(x -> x.rarity != AbstractCard.CardRarity.BASIC);
+        targets.forEach(group::addToBottom);
+        return group;
+        //return (i) -> AbstractDungeon.gridSelectScreen.open(group, 1, getDivinityStrings().getMiscText().get(SELECT_TEXT), false);
+    }
+
+
+    // Code from here to end is boilerplate.
 
     private void updateBlackScreenColor() {
         if (this.duration > 1.0F) {

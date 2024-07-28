@@ -48,9 +48,9 @@ public class SpiritGraveZone extends AbstractZone
 
     public SpiritGraveZone() {
         super(ID, Icons.MONSTER, Icons.MONSTER, Icons.REST, Icons.SHOP, Icons.EVENT);
-        width = 1;
-        maxWidth = 1;
-        height = 5;
+        width = 2;      //intended 1
+        maxWidth = 2;   //intended 1
+        height = 6;     //intended 5
 //        maxHeight = 5;
         zoneColor = Color.TEAL.cpy();
         zoneColor.a = 1.0F;
@@ -61,10 +61,11 @@ public class SpiritGraveZone extends AbstractZone
         return zoneColor;
     }
 
-    @Override
+    //intended act 2
+    /*@Override
     public boolean canSpawn() {
         return isAct(2);
-    }
+    }*/
 
     @Override
     public AbstractZone copy() {
