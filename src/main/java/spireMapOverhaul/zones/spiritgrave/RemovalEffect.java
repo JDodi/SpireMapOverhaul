@@ -18,9 +18,6 @@ import com.megacrit.cardcrawl.vfx.cardManip.PurgeCardEffect;
 
 //REF: CampfireTokeEffect (base game), TransformEffect (gravewoodGrove)
 public class RemovalEffect extends AbstractGameEffect {
-//    private static final UIStrings uiStrings;
-//    private static final UIStrings uiStrings = CardCrawlGame.languagePack.getUIString(makeID("RemovalEffect"));
-//    public static final String[] TEXT;
     private static final float DURATION = 1.5F;
     private boolean openedScreen = false;
     private Color screenColor;
@@ -39,11 +36,13 @@ public class RemovalEffect extends AbstractGameEffect {
         }
 
         if (!AbstractDungeon.isScreenUp && !AbstractDungeon.gridSelectScreen.selectedCards.isEmpty() && AbstractDungeon.gridSelectScreen.forPurge) {
-            AbstractCard card = AbstractDungeon.gridSelectScreen.selectedCards.get(0);
-            CardCrawlGame.metricData.addCampfireChoiceData("PURGE", card.getMetricID());
-            CardCrawlGame.sound.play("CARD_EXHAUST");
-            AbstractDungeon.topLevelEffects.add(new PurgeCardEffect(card, (float)(Settings.WIDTH / 2), (float)(Settings.HEIGHT / 2)));
-            AbstractDungeon.player.masterDeck.removeCard(card);
+            //This loop can handle multiple cards.
+            for (AbstractCard card : AbstractDungeon.gridSelectScreen.selectedCards) {
+                CardCrawlGame.metricData.addCampfireChoiceData("PURGE", card.getMetricID());
+                CardCrawlGame.sound.play("CARD_EXHAUST");
+                AbstractDungeon.topLevelEffects.add(new PurgeCardEffect(card, (float)(Settings.WIDTH / 2), (float)(Settings.HEIGHT / 2)));
+                AbstractDungeon.player.masterDeck.removeCard(card);
+            }
             AbstractDungeon.gridSelectScreen.selectedCards.clear();
         }
 
@@ -67,12 +66,11 @@ public class RemovalEffect extends AbstractGameEffect {
                             .getPurgeableCards()), 2, RemovalOption.TEXT[2], false, false, true, true);
         }*/
 
-        // Everything below here is boilerplate.
+        // Almost everything below here is boilerplate.
         if (this.duration < 1.0F && !this.openedScreen) {
             this.openedScreen = true;
             AbstractDungeon.gridSelectScreen.open(
                     CardGroup.getGroupWithoutBottledCards(AbstractDungeon.player.masterDeck.getPurgeableCards()),
-                    //2, TEXT[0],
                     2, RemovalOption.TEXT[2],
                     false, false, true, true
             );
@@ -108,9 +106,4 @@ public class RemovalEffect extends AbstractGameEffect {
     @Override
     public void dispose() {
     }
-
-    /*static {
-        uiStrings = CardCrawlGame.languagePack.getUIString("RemovalEffect");
-        TEXT = uiStrings.TEXT;
-    }*/
 }
