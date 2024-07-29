@@ -19,7 +19,7 @@ public class SpiritArmor extends AbstractSMOCard {
     private static final int COST = 0;
 
     public SpiritArmor() {
-        super(ID, SpiritArmor.ID, COST, CardType.POWER, CardRarity.RARE, CardTarget.NONE);
+        super(ID, SpiritArmor.ID, COST, CardType.POWER, CardRarity.SPECIAL, CardTarget.NONE);
     }
 
 
