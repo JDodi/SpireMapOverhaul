@@ -9,10 +9,13 @@ import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.map.MapRoomNode;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import com.megacrit.cardcrawl.monsters.MonsterGroup;
+import com.megacrit.cardcrawl.potions.GhostInAJar;
 import com.megacrit.cardcrawl.powers.VulnerablePower;
 import com.megacrit.cardcrawl.powers.WeakPower;
 import com.megacrit.cardcrawl.random.Random;
 import com.megacrit.cardcrawl.rooms.EventRoom;
+import com.megacrit.cardcrawl.shop.ShopScreen;
+import com.megacrit.cardcrawl.shop.StorePotion;
 import com.megacrit.cardcrawl.ui.campfire.AbstractCampfireOption;
 import com.megacrit.cardcrawl.ui.campfire.RestOption;
 import spireMapOverhaul.abstracts.AbstractZone;
@@ -26,11 +29,12 @@ import spireMapOverhaul.zones.spiritgrave.cards.SpiritArmor;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 import static spireMapOverhaul.util.Wiz.atb;
 import static spireMapOverhaul.util.Wiz.forAllMonstersLiving;
 
-//REFS: GremlinTown, GremlinCamp, TheFogZone
+//REFS: GremlinTown, GremlinCamp, TheFogZone, CandyLand (rewards)
 public class SpiritGraveZone extends AbstractZone
         implements  CampfireModifyingZone,
         CombatModifyingZone,
@@ -48,8 +52,8 @@ public class SpiritGraveZone extends AbstractZone
 
     public SpiritGraveZone() {
         super(ID, Icons.MONSTER, Icons.MONSTER, Icons.REST, Icons.SHOP, Icons.EVENT);
-        width = 2;      //intended 1
-        maxWidth = 2;   //intended 1
+        width = 3;      //intended 1
+        maxWidth = 3;   //intended 2
         height = 6;     //intended 5
 //        maxHeight = 5;
         zoneColor = Color.TEAL.cpy();
@@ -166,6 +170,18 @@ public class SpiritGraveZone extends AbstractZone
     public void addCampfireOption(ArrayList<AbstractCampfireOption> options) {
         options.add(new TokeOption(!CardGroup.getGroupWithoutBottledCards(AbstractDungeon.player.masterDeck.getPurgeableCards()).isEmpty()));
     }*/
+
+    //REF: CandyLand
+    @Override
+    public void postCreateShopPotions(ShopScreen screen, ArrayList<StorePotion> potions) {
+        for(StorePotion potion : potions){
+            if(!Objects.equals(potion.potion.ID, GhostInAJar.POTION_ID)){
+                //potion.potion = AbstractDungeon.returnRandomPotion(potion.potion.rarity, true);
+                potion.potion = new GhostInAJar();
+                break;
+            }
+        }
+    }
 
     //REF: GremlinTown
     private static void initSpiritGraveCards() {
